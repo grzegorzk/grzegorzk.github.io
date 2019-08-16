@@ -6,4 +6,9 @@ RUN apk update \
         'npm<=10.16.2' \
     && npm install --global create-react-app@3.1.1
 
-ENTRYPOINT ["tail", "-f", "/dev/null"]
+RUN mkdir -p /usr/local/passstore
+
+WORKDIR /usr/local/passstore
+
+#ENTRYPOINT ["tail", "-f", "/dev/null"]
+ENTRYPOINT ["npm", "start"]

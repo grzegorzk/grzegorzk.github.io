@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "8280c5bc45c97cab19ef07c5203807fd",
+    "revision": "70ce478699e40df98090e80368b0397e",
     "url": "passstore/build/index.html"
   },
   {
