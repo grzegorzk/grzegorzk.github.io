@@ -34,3 +34,7 @@ The easiest way to deploy this is to use github pages.
 If you are new to github simply create a repository called `your_user_name.github.io` and github will automatically deploy once you `git push` there.
 
 If you already run your blog on github then create new repository, go to `settings -> GitHub Pages` section and select `master branch` from `source` dropdown.
+
+## TODO
+
+ * Each time `make build` is invoked lots of individual files from `passstore/build` must be `git rm` and `git add`
