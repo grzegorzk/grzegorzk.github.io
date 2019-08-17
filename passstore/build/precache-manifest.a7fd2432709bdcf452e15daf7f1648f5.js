@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "9c1b78784c52a982bb34f21ba449772f",
+    "revision": "05605997cd38bc65a95a7f0944333880",
     "url": "passstore/build/index.html"
   },
   {
@@ -8,7 +8,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "passstore/build/static/css/2.22a7d4ef.chunk.css"
   },
   {
-    "revision": "b1bb32e7322366a40451",
+    "revision": "0dbda82d67c019e00276",
     "url": "passstore/build/static/css/main.34de6062.chunk.css"
   },
   {
@@ -16,8 +16,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "passstore/build/static/js/2.dc0c610f.chunk.js"
   },
   {
-    "revision": "b1bb32e7322366a40451",
-    "url": "passstore/build/static/js/main.48eb8048.chunk.js"
+    "revision": "0dbda82d67c019e00276",
+    "url": "passstore/build/static/js/main.20463efe.chunk.js"
   },
   {
     "revision": "5f4d24a959fcfa7f52a5",

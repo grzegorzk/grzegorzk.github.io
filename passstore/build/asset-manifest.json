@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "passstore/build/static/css/main.34de6062.chunk.css",
-    "main.js": "passstore/build/static/js/main.48eb8048.chunk.js",
-    "main.js.map": "passstore/build/static/js/main.48eb8048.chunk.js.map",
+    "main.js": "passstore/build/static/js/main.20463efe.chunk.js",
+    "main.js.map": "passstore/build/static/js/main.20463efe.chunk.js.map",
     "runtime~main.js": "passstore/build/static/js/runtime~main.450fd1fd.js",
     "runtime~main.js.map": "passstore/build/static/js/runtime~main.450fd1fd.js.map",
     "static/css/2.22a7d4ef.chunk.css": "passstore/build/static/css/2.22a7d4ef.chunk.css",
     "static/js/2.dc0c610f.chunk.js": "passstore/build/static/js/2.dc0c610f.chunk.js",
     "static/js/2.dc0c610f.chunk.js.map": "passstore/build/static/js/2.dc0c610f.chunk.js.map",
     "index.html": "passstore/build/index.html",
-    "precache-manifest.ae35c32ead7f82d88e6e9a22118f113d.js": "passstore/build/precache-manifest.ae35c32ead7f82d88e6e9a22118f113d.js",
+    "precache-manifest.a7fd2432709bdcf452e15daf7f1648f5.js": "passstore/build/precache-manifest.a7fd2432709bdcf452e15daf7f1648f5.js",
     "service-worker.js": "passstore/build/service-worker.js",
     "static/css/2.22a7d4ef.chunk.css.map": "passstore/build/static/css/2.22a7d4ef.chunk.css.map",
     "static/css/main.34de6062.chunk.css.map": "passstore/build/static/css/main.34de6062.chunk.css.map"
