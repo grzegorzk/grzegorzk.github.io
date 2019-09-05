@@ -9,10 +9,10 @@ RUN apk update \
     && rm -rf /var/lib/apt/lists/* \
     && npm install --global create-react-app@3.1.1 bootstrap@4.3.1
 
-RUN mkdir -p /usr/local/passstore
+RUN mkdir -p /usr/local/react-app
 
 COPY docker-files/entrypoint.sh /
-WORKDIR /usr/local/passstore
+WORKDIR /usr/local/react-app
 
 #ENTRYPOINT ["tail", "-f", "/dev/null"]
 ENTRYPOINT ["/entrypoint.sh"]
