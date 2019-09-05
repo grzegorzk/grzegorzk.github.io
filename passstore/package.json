@@ -2,7 +2,7 @@
   "name": "passstore",
   "version": "0.1.0",
   "private": true,
-  "homepage": "passstore/build",
+  "homepage": "",
   "dependencies": {
     "bootstrap": "^4.3.1",
     "react": "^16.9.0",
