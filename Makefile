@@ -1,10 +1,20 @@
 NAME="npm"
+PORT=3000
+
+help:
+	#Available targets:
+	#  * run - build dev container and run npm locally on port $(PORT)
+	#    (will bind-mount $(CURDIR)/react-app into the container)
+	#  * build - invoke 'npm build' from the container
+	#  * deploy - build and push to master branch
+	#  * stop - stop everything
+	#  * terminal - get sh to npm container
 
 run:
 	docker build -t ${NAME} . \
 	&& docker run -d --rm --name ${NAME} \
 		--mount type=bind,source=$(CURDIR)/react-app,target=/usr/local/react-app \
-		-p 3000:3000 \
+		-p $(PORT):3000 \
 		${NAME}
 
 build:
