@@ -35,15 +35,27 @@ class App extends React.Component {
                         onClick={ this.gapi_oauth }>
                     Authenticate to your google account
                 </button>
+                <button className="btn btn-primary m-2"
+                        style={ this.state.logged_in ? {display: "block"} : {display: "none"} }
+                        onClick={ this.gapi_logout }>
+                    Log out from your google account
+                </button>
             </div>
         )
     }
     gapi_oauth = () => {
-        if ( ! this.gapi_wrapper.is_ready() ) {
-            alert("Gooogle API is still loading, please try again");
-            return;
+        try {
+            this.gapi_wrapper.sign_in();
+        } catch (e) {
+            alert(e);
         }
-        this.gapi_wrapper.sign_in();
+    }
+    gapi_logout = () => {
+        try {
+            this.gapi_wrapper.sign_out();
+        } catch (e) {
+            alert(e);
+        }
     }
 }
 

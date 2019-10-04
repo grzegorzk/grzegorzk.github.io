@@ -21,7 +21,18 @@ class GapiWrapper {
         return this.init_gapi_callback;
     }
     sign_in() {
+        if ( ! this.is_ready() ) {
+            throw new Error("Gooogle API is still loading, please try again");
+            return;
+        }
         this.gapi.auth2.getAuthInstance().signIn();
+    }
+    sign_out() {
+        if ( ! this.is_ready() ) {
+            throw new Error("Gooogle API is still loading, please try again");
+            return;
+        }
+        this.gapi.auth2.getAuthInstance().signOut();
     }
 }
 
