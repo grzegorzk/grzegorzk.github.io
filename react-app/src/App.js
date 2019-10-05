@@ -1,5 +1,4 @@
 import React from "react";
-import xhr_load_script from "./xhr_loader";
 import create_gapi_wrapper from "./gapi_config";
 
 class App extends React.Component {
@@ -7,6 +6,7 @@ class App extends React.Component {
         super(props);
         this.state = {
             logged_in: false,
+            doc_created: false,
             passwords: [{url: "example.com", encrypted_pwd: ""},
                 {url: "example.com", encrypted_pwd: ""},
                 {url: "example.com", encrypted_pwd: ""},
@@ -14,10 +14,6 @@ class App extends React.Component {
         }
 
         this.gapi_wrapper = create_gapi_wrapper(this.update_sign_in_status);
-        var gapi_callback = this.gapi_wrapper.get_gapi_callback();
-        xhr_load_script("https://apis.google.com/js/api.js", function(){
-            window.gapi.load('client:auth2', gapi_callback)
-        });
     }
     update_sign_in_status = (status) => {
         this.setState({
@@ -40,6 +36,11 @@ class App extends React.Component {
                         onClick={ this.gapi_logout }>
                     Log out from your google account
                 </button>
+                <button className="btn btn-primary m-2"
+                        style={ this.state.logged_in && ! this.state.doc_created ? {display: "block"} : {display: "none"} }
+                        onClick={ this.gapi_create_spreadsheet }>
+                    Create spreadsheet
+                </button>
             </div>
         )
     }
@@ -53,6 +54,19 @@ class App extends React.Component {
     gapi_logout = () => {
         try {
             this.gapi_wrapper.sign_out();
+        } catch (e) {
+            alert(e);
+        }
+    }
+
+    update_doc_created_status = (status) => {
+        this.setState({
+            doc_created: status
+        });
+    }
+    gapi_create_spreadsheet = () => {
+        try {
+            this.gapi_wrapper.create_spreadsheet("do_not_rename_me_aes_256_passwords.xls", this.update_doc_created_status);
         } catch (e) {
             alert(e);
         }
