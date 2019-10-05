@@ -38,7 +38,8 @@ deploy:
 	git commit -m "Replacing react build - step 2 (`date`)" && \
 	git push && \
 	git checkout dev && \
-	git stash pop
+	git stash pop && \
+	make run
 
 stop:
 	docker stop ${NAME}
