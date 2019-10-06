@@ -7,7 +7,8 @@ class App extends React.Component {
         this.state = {
             logged_in: false,
             doc_obtained: false,
-            passwords: [{url: "example.com", encrypted_pwd: ""},
+            passwords: [
+                {url: "example.com", uname: "example", encrypted_pwd: ""},
                 {url: "example.com", uname: "example", encrypted_pwd: ""},
                 {url: "example.com", uname: "example", encrypted_pwd: ""},
                 {url: "example.com", uname: "example", encrypted_pwd: ""}]
@@ -60,9 +61,10 @@ class App extends React.Component {
                     {this.state.passwords.map((value, index) => {
                         return <tr key={index}>
                             <td>{index}</td>
-                            <td>{value.url}</td>
-                            <td>{value.uname}</td>
-                            <td>***</td>
+                            <td onClick={ () => this.update_url(index) }>{value.url}</td>
+                            <td onClick={ () => this.update_uname(index) }>{value.uname}</td>
+                            <td onClick={ () => this.gapi_pwd_to_clipboard(index) }>***</td>
+                            <td onClick={ () => this.gapi_update_pwd(index) }>change password</td>
                         </tr>
                     })}
                     </tbody>
@@ -104,6 +106,39 @@ class App extends React.Component {
             doc_obtained: false
         });
         this.gapi_wrapper.spreadsheet_id = null;
+    }
+
+    update_url_in_state = (index, new_url) => {
+        // https://stackoverflow.com/questions/29537299
+        let pwd = {...passwords[index]};
+        pwd.url = new_url;
+        passwords[index] = pwd;
+        this.setState({
+            passwords: passwords
+        });
+    }
+    update_url = (index) => {
+        var new_url = prompt(this.state.passwords[index].url);
+        this.update_url_in_state(index, new_url);
+    }
+
+    update_uname_in_state = (index, new_uname) => {
+        let passwords = [...this.state.passwords];
+        let pwd = {...passwords[index]};
+        pwd.uname = new_uname;
+        passwords[index] = pwd;
+        this.setState({
+            passwords: passwords
+        });
+    }
+    update_uname = (index) => {
+        var new_uname = prompt(this.state.passwords[index].uname);
+        this.update_uname_in_state(index, new_uname);
+    }
+
+    gapi_pwd_to_clipboard = (index) => {
+    }
+    gapi_update_pwd = (index) => {
     }
 }
 
