@@ -6,12 +6,7 @@ class App extends React.Component {
         super(props);
         this.state = {
             logged_in: false,
-            doc_obtained: false,
-            passwords: [
-                {url: "example.com", uname: "example", encrypted_pwd: ""},
-                {url: "example.com", uname: "example", encrypted_pwd: ""},
-                {url: "example.com", uname: "example", encrypted_pwd: ""},
-                {url: "example.com", uname: "example", encrypted_pwd: ""}]
+            passwords: []
         }
         this.spreadsheet_name = "do_not_rename_me_aes_256_passwords.xls";
         this.gapi_wrapper = create_gapi_wrapper(this.update_sign_in_status);
@@ -38,17 +33,17 @@ class App extends React.Component {
                     Log out from your google account
                 </button>
                 <button className="btn btn-primary m-2"
-                        style={ this.state.logged_in && ! this.state.doc_obtained ? {display: "block"} : {display: "none"} }
-                        onClick={ this.gapi_open_spreadsheet }>
+                        style={ this.state.logged_in && ! this.state.passwords.length ? {display: "block"} : {display: "none"} }
+                        onClick={ this.gapi_load_spreadsheet }>
                     Open spreadsheet
                 </button>
                 <button className="btn btn-primary m-2"
-                        style={ this.state.logged_in && this.state.doc_obtained ? {display: "block"} : {display: "none"} }
+                        style={ this.state.logged_in && this.state.passwords.length ? {display: "block"} : {display: "none"} }
                         onClick={ this.gapi_unload_spreadsheet }>
                     Unload spreadsheet
                 </button>
                 <table className="table"
-                        style={ this.state.logged_in && this.state.doc_obtained ? {display: "block"} : {display: "none"} } >
+                        style={ this.state.logged_in && this.state.passwords.length ? {display: "block"} : {display: "none"} } >
                     <thead className="thead-dark">
                         <tr>
                             <th scope="col">#</th>
@@ -87,14 +82,14 @@ class App extends React.Component {
         }
     }
 
-    update_doc_obtained_status = (status) => {
+    update_passwords_in_state = (values) => {
         this.setState({
-            doc_obtained: status
+            passwords: values
         });
     }
-    gapi_open_spreadsheet = () => {
+    gapi_load_spreadsheet = () => {
         try {
-            this.gapi_wrapper.get_spreadsheet(this.spreadsheet_name, this.update_doc_obtained_status);
+            this.gapi_wrapper.load_spreadsheet(this.spreadsheet_name, this.update_passwords_in_state);
         } catch (e) {
             alert(e);
         }
@@ -103,7 +98,6 @@ class App extends React.Component {
     gapi_unload_spreadsheet = () => {
         this.setState({
             passwords: [],
-            doc_obtained: false
         });
         this.gapi_wrapper.spreadsheet_id = null;
     }

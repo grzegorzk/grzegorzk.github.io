@@ -48,7 +48,7 @@ class GapiWrapper {
     }
 
     // TODO: refactor
-    get_spreadsheet(title, callback) {
+    load_spreadsheet(title, callback) {
         if ( ! this.is_ready() ) {
             throw new Error("Gooogle API is still loading, please try again");
         }
@@ -71,7 +71,39 @@ class GapiWrapper {
                 properties: {title: title}
             }).then((response) => {
                 this_gapi_wrapper.spreadsheet_id = response.result.spreadsheetId;
-                callback(true);
+                callback([]);
+            });
+        }
+
+        var get_spreadsheet_rows = function(spreadsheet_id, callback) {
+            var params = {
+                spreadsheetId: spreadsheet_id,
+                ranges: "Sheet1!A:C",
+                majorDimension: "ROWS"
+            };
+
+            var request = this_gapi_wrapper.gapi.client.sheets.spreadsheets.values.batchGet(params);
+            request.then(function(response) {
+                if ( response.result.valueRanges.length !== 1 ) {
+                    throw new Error("Only one range was expected, got " + response.result.valueRanges.length);
+                }
+                var passwords = [];
+                // TODO: replace magic column numbers with properties from this_gapi_wrapper
+                for ( var i = 0 ; i < response.result.valueRanges[0].values.length ; i ++ ) {
+                    if ( response.result.valueRanges[0].values[i].length != 3 ) {
+                        console.error("Row " + i + " does not contain 3 columns");
+                        continue;
+                    }
+                    passwords.push({
+                        url: response.result.valueRanges[0].values[i][0],
+                        uname: response.result.valueRanges[0].values[i][1],
+                        encrypted_pwd: response.result.valueRanges[0].values[i][2],
+                        index: i
+                    })
+                }
+                callback(passwords);
+            }, function(reason) {
+                console.error("error: " + reason.result.error.message);
             });
         }
 
@@ -83,12 +115,12 @@ class GapiWrapper {
             'fields': "nextPageToken, files(id, name)"
         }).then(function(response) {
             var files = response.result.files;
-            if ( files && files.length == 1 ) {
+            if ( files && files.length === 1 ) {
                 var file = null;
                 for (var i = 0; i < files.length; i++) {
                     file = files[i];
                     this_gapi_wrapper.spreadsheet_id = file.id;
-                    callback(true);
+                    get_spreadsheet_rows(file.id, callback);
                 }
             } else if ( files.length > 1 ) {
                 // This is critical situation, user should not proceed
@@ -103,6 +135,30 @@ class GapiWrapper {
                 create_spreadsheet(title, callback);
             }
         });
+    }
+
+    add_new_entry(url, uname, pass, callback) {
+        if ( ! this.is_ready() ) {
+            throw new Error("Gooogle API is still loading, please try again");
+        }
+        if ( ! window.gapi.auth2.getAuthInstance().isSignedIn.get() ) {
+            throw new Error("You need to be signed in to create documents");
+        }
+        if ( this.spreadsheet_id == null ) {
+            throw new Error("Spreadsheet with passwords have not been created yet");
+        }
+    }
+
+    update_entry(index, url, uname, pass, old_md5, callback) {
+        if ( ! this.is_ready() ) {
+            throw new Error("Gooogle API is still loading, please try again");
+        }
+        if ( ! window.gapi.auth2.getAuthInstance().isSignedIn.get() ) {
+            throw new Error("You need to be signed in to create documents");
+        }
+        if ( this.spreadsheet_id == null ) {
+            throw new Error("Spreadsheet with passwords have not been created yet");
+        }
     }
 }
 
