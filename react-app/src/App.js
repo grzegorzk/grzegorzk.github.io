@@ -6,7 +6,7 @@ class App extends React.Component {
         super(props);
         this.state = {
             logged_in: false,
-            passwords: []
+            passwords: null
         }
         this.spreadsheet_name = "do_not_rename_me_aes_256_passwords.xls";
         this.gapi_wrapper = create_gapi_wrapper(this.update_sign_in_status);
@@ -33,17 +33,17 @@ class App extends React.Component {
                     Log out from your google account
                 </button>
                 <button className="btn btn-primary m-2"
-                        style={ this.state.logged_in && ! this.state.passwords.length ? {display: "block"} : {display: "none"} }
+                        style={ this.state.logged_in && this.state.passwords == null ? {display: "block"} : {display: "none"} }
                         onClick={ this.gapi_load_spreadsheet }>
                     Open spreadsheet
                 </button>
                 <button className="btn btn-primary m-2"
-                        style={ this.state.logged_in && this.state.passwords.length ? {display: "block"} : {display: "none"} }
+                        style={ this.state.logged_in && this.state.passwords != null ? {display: "block"} : {display: "none"} }
                         onClick={ this.gapi_unload_spreadsheet }>
                     Unload spreadsheet
                 </button>
                 <table className="table"
-                        style={ this.state.logged_in && this.state.passwords.length ? {display: "block"} : {display: "none"} } >
+                        style={ this.state.logged_in && this.state.passwords != null ? {display: "block"} : {display: "none"} } >
                     <thead className="thead-dark">
                         <tr>
                             <th scope="col">#</th>
@@ -53,7 +53,7 @@ class App extends React.Component {
                         </tr>
                     </thead>
                     <tbody>
-                    {this.state.passwords.map((value, index) => {
+                    {this.state.passwords != null ? this.state.passwords.map((value, index) => {
                         return <tr key={index}>
                             <td>{index}</td>
                             <td onClick={ () => this.update_url(index) }>{value.url}</td>
@@ -61,9 +61,14 @@ class App extends React.Component {
                             <td onClick={ () => this.gapi_pwd_to_clipboard(index) }>***</td>
                             <td onClick={ () => this.gapi_update_pwd(index) }>change password</td>
                         </tr>
-                    })}
+                    }) : null}
                     </tbody>
                 </table>
+                <button className="btn btn-primary m-2"
+                        style={ this.state.logged_in && this.state.passwords != null ? {display: "block"} : {display: "none"} }
+                        onClick={ this.gapi_unload_spreadsheet }>
+                    Add
+                </button>
             </div>
         )
     }
@@ -97,12 +102,21 @@ class App extends React.Component {
 
     gapi_unload_spreadsheet = () => {
         this.setState({
-            passwords: [],
+            passwords: null,
         });
         this.gapi_wrapper.spreadsheet_id = null;
     }
 
     update_url_in_state = (index, new_url) => {
+        if ( this.state.passwords == null ) {
+            throw new Error("Tried to update uninitialised this.state.passwords");
+            return;
+        }
+        if ( this.state.passwords.length - 1 < index ) {
+            throw new Error("Tried to update this.state.passwords at nonexisting index");
+            return;
+        }
+
         // https://stackoverflow.com/questions/29537299
         let passwords = [...this.state.passwords];
         let pwd = {...passwords[index]};
@@ -118,6 +132,15 @@ class App extends React.Component {
     }
 
     update_uname_in_state = (index, new_uname) => {
+        if ( this.state.passwords == null ) {
+            throw new Error("Tried to update uninitialised this.state.passwords");
+            return;
+        }
+        if ( this.state.passwords.length - 1 < index ) {
+            throw new Error("Tried to update this.state.passwords at nonexisting index");
+            return;
+        }
+
         let passwords = [...this.state.passwords];
         let pwd = {...passwords[index]};
         pwd.uname = new_uname;
