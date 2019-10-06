@@ -41,6 +41,11 @@ class App extends React.Component {
                         onClick={ this.gapi_open_spreadsheet }>
                     Open spreadsheet
                 </button>
+                <button className="btn btn-primary m-2"
+                        style={ this.state.logged_in && this.state.doc_obtained ? {display: "block"} : {display: "none"} }
+                        onClick={ this.gapi_unload_spreadsheet }>
+                    Unload spreadsheet
+                </button>
                 <table className="table"
                         style={ this.state.logged_in && this.state.doc_obtained ? {display: "block"} : {display: "none"} } >
                     <thead className="thead-dark">
@@ -91,6 +96,14 @@ class App extends React.Component {
         } catch (e) {
             alert(e);
         }
+    }
+
+    gapi_unload_spreadsheet = () => {
+        this.setState({
+            passwords: [],
+            doc_obtained: false
+        });
+        this.gapi_wrapper.spreadsheet_id = null;
     }
 }
 
