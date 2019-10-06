@@ -83,22 +83,22 @@ class GapiWrapper {
             'fields': "nextPageToken, files(id, name)"
         }).then(function(response) {
             var files = response.result.files;
-            if ( files && files.length > 0 ) {
+            if ( files && files.length == 1 ) {
                 var file = null;
                 for (var i = 0; i < files.length; i++) {
-                    if ( i > 0 ) {
-                        // This is critical situation, user should not proceed
-                        this_gapi_wrapper.spreadsheet_id = this_gapi_wrapper.invalid_spreadsheet_id;
-
-                        var error_msg = "More than one '" + title + "' found. Remove unwanted copy and try again";
-                        console.log(error_msg);
-                        alert(error_msg);
-                        throw new Error(error_msg);
-                    }
                     file = files[i];
                     this_gapi_wrapper.spreadsheet_id = file.id;
                     callback(true);
                 }
+            } else if ( files.length > 1 ) {
+                // This is critical situation, user should not proceed
+                this_gapi_wrapper.spreadsheet_id = this_gapi_wrapper.invalid_spreadsheet_id;
+
+                var error_msg = "More than one '" + title + "' found. Remove unwanted copy and try again";
+                error_msg += "\nIf you removed duplicate remember to also remove it from google drive trash";
+                console.log(error_msg);
+                alert(error_msg);
+                throw new Error(error_msg);
             } else {
                 create_spreadsheet(title, callback);
             }

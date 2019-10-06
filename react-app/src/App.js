@@ -8,9 +8,9 @@ class App extends React.Component {
             logged_in: false,
             doc_obtained: false,
             passwords: [{url: "example.com", encrypted_pwd: ""},
-                {url: "example.com", encrypted_pwd: ""},
-                {url: "example.com", encrypted_pwd: ""},
-                {url: "example.com", encrypted_pwd: ""}]
+                {url: "example.com", uname: "example", encrypted_pwd: ""},
+                {url: "example.com", uname: "example", encrypted_pwd: ""},
+                {url: "example.com", uname: "example", encrypted_pwd: ""}]
         }
         this.spreadsheet_name = "do_not_rename_me_aes_256_passwords.xls";
         this.gapi_wrapper = create_gapi_wrapper(this.update_sign_in_status);
@@ -41,6 +41,27 @@ class App extends React.Component {
                         onClick={ this.gapi_open_spreadsheet }>
                     Open spreadsheet
                 </button>
+                <table className="table"
+                        style={ this.state.logged_in && this.state.doc_obtained ? {display: "block"} : {display: "none"} } >
+                    <thead className="thead-dark">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">url</th>
+                            <th scope="col">user name</th>
+                            <th scope="col">password</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {this.state.passwords.map((value, index) => {
+                        return <tr key={index}>
+                            <td>{index}</td>
+                            <td>{value.url}</td>
+                            <td>{value.uname}</td>
+                            <td>***</td>
+                        </tr>
+                    })}
+                    </tbody>
+                </table>
             </div>
         )
     }
