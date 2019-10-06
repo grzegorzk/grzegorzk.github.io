@@ -110,6 +110,7 @@ class App extends React.Component {
 
     update_url_in_state = (index, new_url) => {
         // https://stackoverflow.com/questions/29537299
+        let passwords = [...this.state.passwords];
         let pwd = {...passwords[index]};
         pwd.url = new_url;
         passwords[index] = pwd;
