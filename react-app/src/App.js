@@ -6,13 +6,13 @@ class App extends React.Component {
         super(props);
         this.state = {
             logged_in: false,
-            doc_created: false,
+            doc_obtained: false,
             passwords: [{url: "example.com", encrypted_pwd: ""},
                 {url: "example.com", encrypted_pwd: ""},
                 {url: "example.com", encrypted_pwd: ""},
                 {url: "example.com", encrypted_pwd: ""}]
         }
-
+        this.spreadsheet_name = "do_not_rename_me_aes_256_passwords.xls";
         this.gapi_wrapper = create_gapi_wrapper(this.update_sign_in_status);
     }
     update_sign_in_status = (status) => {
@@ -37,9 +37,9 @@ class App extends React.Component {
                     Log out from your google account
                 </button>
                 <button className="btn btn-primary m-2"
-                        style={ this.state.logged_in && ! this.state.doc_created ? {display: "block"} : {display: "none"} }
-                        onClick={ this.gapi_create_spreadsheet }>
-                    Create spreadsheet
+                        style={ this.state.logged_in && ! this.state.doc_obtained ? {display: "block"} : {display: "none"} }
+                        onClick={ this.gapi_open_spreadsheet }>
+                    Open spreadsheet
                 </button>
             </div>
         )
@@ -59,14 +59,14 @@ class App extends React.Component {
         }
     }
 
-    update_doc_created_status = (status) => {
+    update_doc_obtained_status = (status) => {
         this.setState({
-            doc_created: status
+            doc_obtained: status
         });
     }
-    gapi_create_spreadsheet = () => {
+    gapi_open_spreadsheet = () => {
         try {
-            this.gapi_wrapper.create_spreadsheet("do_not_rename_me_aes_256_passwords.xls", this.update_doc_created_status);
+            this.gapi_wrapper.get_spreadsheet(this.spreadsheet_name, this.update_doc_obtained_status);
         } catch (e) {
             alert(e);
         }

@@ -20,6 +20,7 @@ class GapiWrapper {
         this.init_gapi_callback = function() {};
         this.instance = null;
         this.spreadsheet_id = null;
+        this.invalid_spreadsheet_id = -1;
     }
 
     is_ready() {
@@ -47,7 +48,7 @@ class GapiWrapper {
     }
 
     // TODO: refactor
-    create_spreadsheet(title, callback) {
+    get_spreadsheet(title, callback) {
         if ( ! this.is_ready() ) {
             throw new Error("Gooogle API is still loading, please try again");
         }
@@ -60,9 +61,19 @@ class GapiWrapper {
 
         // User may quickly click multiple times
         // We need to ensure above condition won't let us in next time
-        this.spreadsheet_id = -1;
+        // That's why we set magic number below
+        this.spreadsheet_id = this.invalid_spreadsheet_id;
 
         var this_gapi_wrapper = this.instance;
+
+        var create_spreadsheet = function(title, callback) {
+            this_gapi_wrapper.gapi.client.sheets.spreadsheets.create({
+                properties: {title: title}
+            }).then((response) => {
+                this_gapi_wrapper.spreadsheet_id = response.result.spreadsheetId;
+                callback(true);
+            });
+        }
 
         // Check if file already exists
         // https://developers.google.com/drive/api/v3/search-files
@@ -73,20 +84,23 @@ class GapiWrapper {
         }).then(function(response) {
             var files = response.result.files;
             if ( files && files.length > 0 ) {
+                var file = null;
                 for (var i = 0; i < files.length; i++) {
-                    var file = files[i];
+                    if ( i > 0 ) {
+                        // This is critical situation, user should not proceed
+                        this_gapi_wrapper.spreadsheet_id = this_gapi_wrapper.invalid_spreadsheet_id;
+
+                        var error_msg = "More than one '" + title + "' found. Remove unwanted copy and try again";
+                        console.log(error_msg);
+                        alert(error_msg);
+                        throw new Error(error_msg);
+                    }
+                    file = files[i];
                     this_gapi_wrapper.spreadsheet_id = file.id;
                     callback(true);
-                    // TODO: more files could match search criteria
-                    break;
                 }
             } else {
-                this_gapi_wrapper.gapi.client.sheets.spreadsheets.create({
-                    properties: {title: title}
-                }).then((response) => {
-                    this_gapi_wrapper.spreadsheet_id = response.result.spreadsheetId;
-                    callback(true);
-                });
+                create_spreadsheet(title, callback);
             }
         });
     }
