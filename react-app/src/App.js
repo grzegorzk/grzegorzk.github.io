@@ -229,7 +229,77 @@ class App extends React.Component {
         master_pwd = "";
     }
 
-    gapi_pwd_to_clipboard = (index) => {
+    gapi_pwd_to_clipboard = (i) => {
+        var master_pwd = prompt("Please provide master password to decrypt password");
+        var encrypted_pwd = this.state.passwords[i].encrypted_pwd;
+        var init_vector = this.state.passwords[i].init_vector;
+        decrypt_with_passphrase(master_pwd, init_vector, encrypted_pwd).then(
+            function(enc) {
+                // There is a problem with accessing clipboard from async function
+                // TODO: below is bad and needs to be improved
+                prompt("The password:", enc);
+                // below left for reference
+                /*
+                setTimeout(function() {
+                    var x = function (el, type){
+                        var e = document.createEvent('HTMLEvents');
+                        e.initEvent(type, true, false);
+                        el.dispatchEvent(e);
+                    }
+
+                    var textArea = document.createElement("textarea");
+                    // https://stackoverflow.com/questions/400212#answer-30810322
+                    textArea.style.position = 'fixed';
+                    textArea.style.top = 0;
+                    textArea.style.left = 0;
+                    textArea.style.width = '2em';
+                    textArea.style.height = '2em';
+                    textArea.style.padding = 0;
+                    textArea.style.border = 'none';
+                    textArea.style.outline = 'none';
+                    textArea.style.boxShadow = 'none';
+                    textArea.style.background = 'transparent';
+                    textArea.id = 'asdfasdf1';
+                    textArea.value = enc;
+                    textArea.addEventListener("click", function() {
+                        var success = false;
+                        try {
+                            var result = document.execCommand('copy');
+                            success = result ? true : false;
+                        } catch (err) {
+                            console.log('unable to put content into clipboard');
+                        }
+                        if ( ! success ) {
+                            alert("Unfortunately your browser is not capable of using clipboard, you cannot get your password back - try different browser, sorry...");
+                        }
+                    });
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    textArea.focus();
+                    setTimeout(function() {
+                        x(document.getElementById('asdfasdf1'), "click");
+                        document.body.removeChild(document.getElementById('asdfasdf1'));
+                    }, 1000);
+                }, 1000);
+                */
+                /*
+                setTimeout(function() {
+                    navigator.permissions.query({name: "clipboard-write"}).then(result => {
+                        if (result.state == "granted" || result.state == "prompt") {
+                            navigator.clipboard.writeText(enc).then(function() {
+                            }, function() {
+                                alert("Unfortunately your browser is not capable of using clipboard, you cannot get your password back - try different browser, sorry...");
+                            });
+                        }
+                    });
+                }, 100);
+                */
+            }
+            ,function(e){
+                console.error(e);
+                alert("Error when decrypting your password, please try again.");
+            }
+        )
     }
 }
 

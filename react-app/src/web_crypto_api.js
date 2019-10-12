@@ -85,7 +85,7 @@ export function encrypt_with_passphrase(passphrase, init_vector, plaintext_paylo
 }
 
 // returns Promise
-function AES_CBC_decrypt(decryption_key, init_vector, encrypted_payload)
+function AES_CBC_decrypt(decryption_key, init_vector, encrypted_payload_str)
 {
     // https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/decrypt
     // This promise returns decrypted (plain text) payload
@@ -95,7 +95,7 @@ function AES_CBC_decrypt(decryption_key, init_vector, encrypted_payload)
             iv: init_vector,
         }, // :param algorithm: https://developer.mozilla.org/en-US/docs/Web/API/AesCbcParams
         decryption_key, // :param key:
-        str2ab(encrypted_payload) // :param data:
+        str2ab(encrypted_payload_str) // :param data:
     ).then(
         function(plain_payload){
             return (new TextDecoder()).decode(plain_payload);
@@ -107,12 +107,12 @@ function AES_CBC_decrypt(decryption_key, init_vector, encrypted_payload)
 }
 
 // returns Promise
-export function decrypt_with_passphrase(passphrase, init_vector, encrypted_payload)
+export function decrypt_with_passphrase(passphrase, init_vector, encrypted_payload_str)
 {
     return get_AES_CBC_key_from_passphrase(passphrase).then(
         function(generated_key){
             // Returns promise
-            return AES_CBC_decrypt(generated_key, init_vector, encrypted_payload);
+            return AES_CBC_decrypt(generated_key, init_vector, encrypted_payload_str);
         }
         ,function(e){
             console.error(e);

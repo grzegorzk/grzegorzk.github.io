@@ -78,7 +78,7 @@ class GapiWrapper {
         var get_spreadsheet_rows = function(spreadsheet_id, callback) {
             var params = {
                 spreadsheetId: spreadsheet_id,
-                ranges: "Sheet1!A:C",
+                ranges: "Sheet1!A:D",
                 majorDimension: "ROWS"
             };
 
@@ -102,6 +102,7 @@ class GapiWrapper {
                     var encrypted_pwd = "";
                     var init_vector = "";
                     var index = 1 + i;
+
                     if ( columns.length >= 1 ) {
                         url = columns[0];
                     }
