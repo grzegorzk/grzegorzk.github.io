@@ -55,7 +55,7 @@ class App extends React.Component {
                     <tbody>
                     {this.state.passwords != null ? this.state.passwords.map((value, index) => {
                         return <tr key={index}>
-                            <td>{index}</td>
+                            <td>{1 + index}</td>
                             <td onClick={ () => this.update_url(index) }>{value.url}</td>
                             <td onClick={ () => this.update_uname(index) }>{value.uname}</td>
                             <td onClick={ () => this.gapi_pwd_to_clipboard(index) }>***</td>
@@ -66,7 +66,7 @@ class App extends React.Component {
                 </table>
                 <button className="btn btn-primary m-2"
                         style={ this.state.logged_in && this.state.passwords != null ? {display: "block"} : {display: "none"} }
-                        onClick={ this.gapi_unload_spreadsheet }>
+                        onClick={ this.gapi_add_row }>
                     Add
                 </button>
             </div>
@@ -80,6 +80,7 @@ class App extends React.Component {
         }
     }
     gapi_logout = () => {
+        this.gapi_unload_spreadsheet();
         try {
             this.gapi_wrapper.sign_out();
         } catch (e) {
@@ -107,51 +108,77 @@ class App extends React.Component {
         this.gapi_wrapper.spreadsheet_id = null;
     }
 
-    update_url_in_state = (index, new_url) => {
+    update_url_in_state = (i, new_url) => {
         if ( this.state.passwords == null ) {
             throw new Error("Tried to update uninitialised this.state.passwords");
-            return;
         }
-        if ( this.state.passwords.length - 1 < index ) {
+        if ( this.state.passwords.length - 1 < i ) {
             throw new Error("Tried to update this.state.passwords at nonexisting index");
-            return;
         }
 
         // https://stackoverflow.com/questions/29537299
         let passwords = [...this.state.passwords];
-        let pwd = {...passwords[index]};
+        let pwd = {...passwords[i]};
         pwd.url = new_url;
-        passwords[index] = pwd;
-        this.setState({
-            passwords: passwords
-        });
+        passwords[i] = pwd;
+        // TODO: below is probably bad practice
+        var app_instance = this;
+        var callback = function() {
+            app_instance.setState({
+                passwords: passwords
+            });
+        };
+
+        this.gapi_wrapper.update_entry(pwd.index, pwd.url, pwd.uname, pwd.encrypted_pwd, callback);
     }
-    update_url = (index) => {
-        var new_url = prompt(this.state.passwords[index].url);
-        this.update_url_in_state(index, new_url);
+    update_url = (i) => {
+        var new_url = prompt(this.state.passwords[i].url);
+        this.update_url_in_state(i, new_url);
     }
 
-    update_uname_in_state = (index, new_uname) => {
+    update_uname_in_state = (i, new_uname) => {
         if ( this.state.passwords == null ) {
             throw new Error("Tried to update uninitialised this.state.passwords");
-            return;
         }
-        if ( this.state.passwords.length - 1 < index ) {
+        if ( this.state.passwords.length - 1 < i ) {
             throw new Error("Tried to update this.state.passwords at nonexisting index");
-            return;
         }
 
         let passwords = [...this.state.passwords];
-        let pwd = {...passwords[index]};
+        let pwd = {...passwords[i]};
         pwd.uname = new_uname;
-        passwords[index] = pwd;
+        passwords[i] = pwd;
         this.setState({
             passwords: passwords
         });
+        // TODO: below is probably bad practice
+        var app_instance = this;
+        var callback = function() {
+            app_instance.setState({
+                passwords: passwords
+            });
+        };
+
+        this.gapi_wrapper.update_entry(pwd.index, pwd.url, pwd.uname, pwd.encrypted_pwd, callback);
     }
-    update_uname = (index) => {
-        var new_uname = prompt(this.state.passwords[index].uname);
-        this.update_uname_in_state(index, new_uname);
+    update_uname = (i) => {
+        var new_uname = prompt(this.state.passwords[i].uname);
+        this.update_uname_in_state(i, new_uname);
+    }
+
+    gapi_add_row = () => {
+        if ( this.state.passwords == null ) {
+            throw new Error("Tried to update uninitialised this.state.passwords");
+        }
+        var index = 1;
+        if ( this.state.passwords.length > 0 ) {
+            index = 1 + this.state.passwords.slice(-1)[0].index;
+        }
+        let passwords = [...this.state.passwords];
+        passwords.push({index: index, url: "", uname: "", encrypted_pwd: ""});
+        this.setState({
+            passwords: passwords
+        });
     }
 
     gapi_pwd_to_clipboard = (index) => {

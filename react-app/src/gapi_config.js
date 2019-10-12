@@ -82,23 +82,39 @@ class GapiWrapper {
                 majorDimension: "ROWS"
             };
 
+            // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/batchGet
             var request = this_gapi_wrapper.gapi.client.sheets.spreadsheets.values.batchGet(params);
             request.then(function(response) {
                 if ( response.result.valueRanges.length !== 1 ) {
                     throw new Error("Only one range was expected, got " + response.result.valueRanges.length);
                 }
                 var passwords = [];
+                var rows = response.result.valueRanges[0].values;
+                if ( rows instanceof Array === false ) {
+                    callback(passwords);
+                    return;
+                }
                 // TODO: replace magic column numbers with properties from this_gapi_wrapper
-                for ( var i = 0 ; i < response.result.valueRanges[0].values.length ; i ++ ) {
-                    if ( response.result.valueRanges[0].values[i].length != 3 ) {
-                        console.error("Row " + i + " does not contain 3 columns");
-                        continue;
+                for ( var i = 0 ; i < rows.length ; i ++ ) {
+                    var columns = rows[i];
+                    var url = "";
+                    var uname = "";
+                    var encrypted_pwd = "";
+                    var index = 1 + i;
+                    if ( columns.length >= 1 ) {
+                        url = columns[0];
+                    }
+                    if ( columns.length >= 2 ) {
+                        uname = columns[1];
+                    }
+                    if ( columns.length >= 3 ) {
+                        encrypted_pwd = columns[2];
                     }
                     passwords.push({
-                        url: response.result.valueRanges[0].values[i][0],
-                        uname: response.result.valueRanges[0].values[i][1],
-                        encrypted_pwd: response.result.valueRanges[0].values[i][2],
-                        index: i
+                        url: url,
+                        uname: uname,
+                        encrypted_pwd: encrypted_pwd,
+                        index: index
                     })
                 }
                 callback(passwords);
@@ -137,7 +153,7 @@ class GapiWrapper {
         });
     }
 
-    add_new_entry(url, uname, pass, callback) {
+    update_entry(index, url, uname, encrypted_pwd, callback) {
         if ( ! this.is_ready() ) {
             throw new Error("Gooogle API is still loading, please try again");
         }
@@ -147,18 +163,27 @@ class GapiWrapper {
         if ( this.spreadsheet_id == null ) {
             throw new Error("Spreadsheet with passwords have not been created yet");
         }
-    }
+        var this_gapi_wrapper = this.instance;
+        var params = {
+            spreadsheetId: this_gapi_wrapper.spreadsheet_id
+        };
+        var values = {
+            valueInputOption: "RAW",
+            data: [{
+                range: "Sheet1!A" + index + ":C" + index,
+                majorDimension: "ROWS",
+                values: [[url ? url : "", uname ? uname : "", encrypted_pwd ? encrypted_pwd : ""]]
+            }]
+        };
 
-    update_entry(index, url, uname, pass, old_md5, callback) {
-        if ( ! this.is_ready() ) {
-            throw new Error("Gooogle API is still loading, please try again");
-        }
-        if ( ! window.gapi.auth2.getAuthInstance().isSignedIn.get() ) {
-            throw new Error("You need to be signed in to create documents");
-        }
-        if ( this.spreadsheet_id == null ) {
-            throw new Error("Spreadsheet with passwords have not been created yet");
-        }
+        // TODO: get that row first, calculate md5 and compare with old_md5 before updating
+        // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/batchUpdate
+        var request = this_gapi_wrapper.gapi.client.sheets.spreadsheets.values.batchUpdate(params, values);
+        request.then(function(response) {
+            callback();
+        }, function(reason) {
+            console.error("error: " + reason.result.error.message);
+        });
     }
 }
 
