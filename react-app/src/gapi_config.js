@@ -100,6 +100,7 @@ class GapiWrapper {
                     var url = "";
                     var uname = "";
                     var encrypted_pwd = "";
+                    var init_vector = "";
                     var index = 1 + i;
                     if ( columns.length >= 1 ) {
                         url = columns[0];
@@ -110,10 +111,14 @@ class GapiWrapper {
                     if ( columns.length >= 3 ) {
                         encrypted_pwd = columns[2];
                     }
+                    if ( columns.length >= 4 ) {
+                        init_vector = JSON.parse("[" + columns[3] + "]");
+                    }
                     passwords.push({
                         url: url,
                         uname: uname,
                         encrypted_pwd: encrypted_pwd,
+                        init_vector: init_vector,
                         index: index
                     })
                 }
@@ -153,7 +158,10 @@ class GapiWrapper {
         });
     }
 
-    update_entry(index, url, uname, encrypted_pwd, callback) {
+    update_entry(index, column, value, callback) {
+        if ( ! ["A", "a", "B", "b", "C", "c", "D", "d"].includes(column) ){
+            throw new Error("Only columns A, B or C are allowed");
+        }
         if ( ! this.is_ready() ) {
             throw new Error("Gooogle API is still loading, please try again");
         }
@@ -163,6 +171,7 @@ class GapiWrapper {
         if ( this.spreadsheet_id == null ) {
             throw new Error("Spreadsheet with passwords have not been created yet");
         }
+
         var this_gapi_wrapper = this.instance;
         var params = {
             spreadsheetId: this_gapi_wrapper.spreadsheet_id
@@ -170,9 +179,9 @@ class GapiWrapper {
         var values = {
             valueInputOption: "RAW",
             data: [{
-                range: "Sheet1!A" + index + ":C" + index,
+                range: "Sheet1!" + column + "" + index,
                 majorDimension: "ROWS",
-                values: [[url ? url : "", uname ? uname : "", encrypted_pwd ? encrypted_pwd : ""]]
+                values: [[value ? value : ""]]
             }]
         };
 

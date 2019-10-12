@@ -1,5 +1,6 @@
 import React from "react";
 import create_gapi_wrapper from "./gapi_config";
+import {generate_init_vector, encrypt_with_passphrase, decrypt_with_passphrase} from "./web_crypto_api";
 
 class App extends React.Component {
     constructor(props) {
@@ -129,7 +130,7 @@ class App extends React.Component {
             });
         };
 
-        this.gapi_wrapper.update_entry(pwd.index, pwd.url, pwd.uname, pwd.encrypted_pwd, callback);
+        this.gapi_wrapper.update_entry(pwd.index, "A", pwd.url, callback);
     }
     update_url = (i) => {
         var new_url = prompt(this.state.passwords[i].url);
@@ -159,7 +160,7 @@ class App extends React.Component {
             });
         };
 
-        this.gapi_wrapper.update_entry(pwd.index, pwd.url, pwd.uname, pwd.encrypted_pwd, callback);
+        this.gapi_wrapper.update_entry(pwd.index, "B", pwd.uname, callback);
     }
     update_uname = (i) => {
         var new_uname = prompt(this.state.passwords[i].uname);
@@ -175,15 +176,60 @@ class App extends React.Component {
             index = 1 + this.state.passwords.slice(-1)[0].index;
         }
         let passwords = [...this.state.passwords];
-        passwords.push({index: index, url: "", uname: "", encrypted_pwd: ""});
+        passwords.push({index: index, url: "", uname: "", encrypted_pwd: "", init_vector: []});
         this.setState({
             passwords: passwords
         });
     }
 
-    gapi_pwd_to_clipboard = (index) => {
+    update_pwd_in_state = (i, new_encrypted_pwd, init_vector) => {
+        if ( this.state.passwords == null ) {
+            throw new Error("Tried to update uninitialised this.state.passwords");
+        }
+        if ( this.state.passwords.length - 1 < i ) {
+            throw new Error("Tried to update this.state.passwords at nonexisting index");
+        }
+
+        let passwords = [...this.state.passwords];
+        let pwd = {...passwords[i]};
+        pwd.encrypted_pwd = new_encrypted_pwd;
+        pwd.init_vector = init_vector;
+        passwords[i] = pwd;
+        this.setState({
+            passwords: passwords
+        });
+        // TODO: below is probably bad practice
+        var app_instance = this;
+        var callback = function() {
+            app_instance.setState({
+                passwords: passwords
+            });
+        };
+        // TODO: we might want to encrypt everything behind the scenes using hardcoded key
+        this.gapi_wrapper.update_entry(pwd.index, "C", pwd.encrypted_pwd, callback);
+        this.gapi_wrapper.update_entry(pwd.index, "D", pwd.init_vector.join(','), callback);
     }
-    gapi_update_pwd = (index) => {
+    gapi_update_pwd = (i) => {
+        var new_pwd = prompt("Please provide new password");
+        // TODO: we might want to add salt to password
+        var master_pwd = prompt("Please provide master password to encrypt new password");
+        var update_pwd_callback = this.update_pwd_in_state;
+
+        var init_vector = generate_init_vector();
+        encrypt_with_passphrase(master_pwd, init_vector, new_pwd).then(
+            function(enc){
+                update_pwd_callback(i, enc, init_vector);
+            }
+            ,function(e){
+                console.error(e);
+                alert("Error when encrypting your password, please try again.");
+            }
+        );
+        // Probably redundant
+        master_pwd = "";
+    }
+
+    gapi_pwd_to_clipboard = (index) => {
     }
 }
 
