@@ -1,6 +1,6 @@
 import React from "react";
 import create_gapi_wrapper from "./gapi_config";
-import {generate_init_vector, encrypt_with_passphrase, decrypt_with_passphrase} from "./web_crypto_api";
+import {generate_init_vector_str, encrypt_with_passphrase, decrypt_with_passphrase} from "./web_crypto_api";
 
 class App extends React.Component {
     constructor(props) {
@@ -207,7 +207,7 @@ class App extends React.Component {
         };
         // TODO: we might want to encrypt everything behind the scenes using hardcoded key
         this.gapi_wrapper.update_entry(pwd.index, "C", pwd.encrypted_pwd, callback);
-        this.gapi_wrapper.update_entry(pwd.index, "D", pwd.init_vector.join(','), callback);
+        this.gapi_wrapper.update_entry(pwd.index, "D", pwd.init_vector, callback);
     }
     gapi_update_pwd = (i) => {
         var new_pwd = prompt("Please provide new password");
@@ -215,7 +215,7 @@ class App extends React.Component {
         var master_pwd = prompt("Please provide master password to encrypt new password");
         var update_pwd_callback = this.update_pwd_in_state;
 
-        var init_vector = generate_init_vector();
+        var init_vector = generate_init_vector_str();
         encrypt_with_passphrase(master_pwd, init_vector, new_pwd).then(
             function(enc){
                 update_pwd_callback(i, enc, init_vector);

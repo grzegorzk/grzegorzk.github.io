@@ -113,7 +113,7 @@ class GapiWrapper {
                         encrypted_pwd = columns[2];
                     }
                     if ( columns.length >= 4 ) {
-                        init_vector = JSON.parse("[" + columns[3] + "]");
+                        init_vector = columns[3];
                     }
                     passwords.push({
                         url: url,
@@ -150,7 +150,7 @@ class GapiWrapper {
 
                 var error_msg = "More than one '" + title + "' found. Remove unwanted copy and try again";
                 error_msg += "\nIf you removed duplicate remember to also remove it from google drive trash";
-                console.log(error_msg);
+                console.error(error_msg);
                 alert(error_msg);
                 throw new Error(error_msg);
             } else {
