@@ -1,3 +1,8 @@
+## What is this
+
+Store your passwords encrypted with AES256 in google sheets and access them through github pages.
+Your decryption password is never sent through the internet. Everything happens locally in your browser.
+
 ## Run at home
 
 ```bash
